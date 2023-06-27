@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_c8_offline/screens/home/tabs/news_tab/NewsTabViewModel.dart';
 import 'package:news_c8_offline/screens/home/tabs/news_tab/tab_content.dart';
 import 'package:provider/provider.dart';
@@ -26,17 +27,14 @@ class _NewsTabState extends State<NewsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => viewModel,
-      builder: (context, _) {
-        viewModel = Provider.of(context);
-        if (!viewModel.isLoading) {
-          if (viewModel.errorMsg.isEmpty) {
-            return getScreenBody(viewModel.sources);
-          } else {
-            return getErrorState(viewModel.errorMsg);
-          }
-        } else {
+    return BlocBuilder<NewsTabViewModel, NewsViewModelState>(
+      bloc: viewModel,
+      builder: (context, state) {
+        if(state is SucessState){
+          return getScreenBody(viewModel.sources);
+        }else if(state is ErrorState){
+          return getErrorState(viewModel.errorMsg);
+        }else {
           return Center(child: CircularProgressIndicator());
         }
       },
